@@ -1,0 +1,49 @@
+{
+  "manifest_version": "0.2",
+  "name": "aicraft",
+  "display_name": "AiCraft",
+  "version": "__VERSION__",
+  "description": "AiCraft MCP server (4 tools).",
+  "author": {
+    "name": "Sandra Schipal",
+    "url": "https://github.com/sandraschi"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sandraschi/aicraft"
+  },
+  "license": "MIT",
+  "server": {
+    "type": "binary",
+    "entry_point": "aicraft-mcp.exe",
+    "mcp_config": {
+      "command": "${__dirname}/aicraft-mcp.exe",
+      "args": [
+        "--mcp"
+      ]
+    }
+  },
+  "compatibility": {
+    "platforms": [
+      "win32"
+    ]
+  },
+  "tools": [
+    {
+      "name": "aicraft_route_completion",
+      "description": "Route completion to optimal model tier (local Ollama weights, balanced cloud, or frontier reasoning) with automatic failover."
+    },
+    {
+      "name": "aicraft_get_telemetry",
+      "description": "Retrieve real-time token spend, latency, speed (tok/s), and cache hit ratios for active sessions."
+    },
+    {
+      "name": "aicraft_inventory_models",
+      "description": "List all configured local Ollama models and cloud model providers with availability status."
+    },
+    {
+      "name": "aicraft_eval_prompt",
+      "description": "Run automated regression tests on a prompt template against benchmark fixtures."
+    }
+  ]
+}
