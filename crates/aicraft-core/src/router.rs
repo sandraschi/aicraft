@@ -99,13 +99,15 @@ impl ModelRouter {
                 cost_per_m_out: 4.00,
             },
             ModelProfile {
-                name: "deepseek-v3".to_string(),
+                name: "deepseek-flash".to_string(),
                 provider: "deepseek".to_string(),
                 tier: ModelTier::Balanced,
-                context_limit: 65536,
+                context_limit: 1_000_000,
                 is_available: true,
-                cost_per_m_in: 0.14,
-                cost_per_m_out: 0.28,
+                // Off-peak cache-miss rates. Search is $0.75/1k, fetch $0.75/1k,
+                // OCR $0.225/1k pages. See craft_ai_core::deepseek::tool_fee_usd.
+                cost_per_m_in: craft_ai_core::deepseek::FLASH_INPUT_USD_PER_M,
+                cost_per_m_out: craft_ai_core::deepseek::FLASH_OUTPUT_USD_PER_M,
             },
             // Tier 3: Frontier Reasoning
             ModelProfile {
@@ -182,5 +184,24 @@ impl ModelRouter {
             completion_tokens,
             cost_usd: cost,
         }
+    }
+}
+
+#[cfg(test)]
+mod price_tests {
+    use super::*;
+
+    #[test]
+    fn deepseek_flash_uses_the_published_offpeak_token_rates() {
+        let models = ModelRouter::list_models();
+        let listed = models.iter().any(|m| {
+            m.name == "deepseek-flash"
+                && m.cost_per_m_in == craft_ai_core::deepseek::FLASH_INPUT_USD_PER_M
+                && m.cost_per_m_out == craft_ai_core::deepseek::FLASH_OUTPUT_USD_PER_M
+                && m.context_limit == 1_000_000
+        });
+        assert!(listed);
+        let searches = craft_ai_core::deepseek::tool_fee_usd(1000, 0, 0);
+        assert!((searches - 0.75).abs() < 1e-9);
     }
 }
