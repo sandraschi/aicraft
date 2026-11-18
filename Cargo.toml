@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "crates/craft-ai-core",
     "crates/aicraft-core",
     "crates/aicraft-mcp",
     "crates/aicraft-app",
@@ -30,5 +31,5 @@ eframe = "0.37"
 egui = "0.37"
 chrono = { version = "0.4", features = ["serde"] }
 databasecraft-store = { path = "../databasecraft/crates/databasecraft-store" }
-craft-ai-core = { path = "../craft-ai/crates/craft-ai-core" }
+craft-ai-core = { path = "crates/craft-ai-core" }
 walkdir = "2.5"
