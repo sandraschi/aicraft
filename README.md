@@ -24,6 +24,8 @@ Consolidates `craft-ai` (`crates/craft-ai-core`, merged 2026-11-18).
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\install-craft.ps1
 ```
 
+Installs the Windows app and the CLI (Start Menu shortcut, CLI on the user PATH). `-RegisterClients` also registers the MCP exe with the IDEs that are installed. `-Clients cursor,claude-desktop` limits that list. `-Mcpb` installs the Claude Desktop extension bundle.
+
 ## Quick Start
 
 ```powershell

@@ -40,7 +40,14 @@ impl ModelRouter {
     /// Test if a local Ollama daemon is listening on port 11434.
     pub fn is_ollama_online() -> bool {
         TcpStream::connect_timeout(
-            &"127.0.0.1:11434".parse().unwrap_or_else(|_| "127.0.0.1:11434".parse().unwrap_or(std::net::SocketAddr::V4(std::net::SocketAddrV4::new(std::net::Ipv4Addr::LOCALHOST, 11434)))),
+            &"127.0.0.1:11434".parse().unwrap_or_else(|_| {
+                "127.0.0.1:11434"
+                    .parse()
+                    .unwrap_or(std::net::SocketAddr::V4(std::net::SocketAddrV4::new(
+                        std::net::Ipv4Addr::LOCALHOST,
+                        11434,
+                    )))
+            }),
             Duration::from_millis(200),
         )
         .is_ok()
@@ -145,7 +152,11 @@ impl ModelRouter {
         let candidate = models
             .iter()
             .find(|m| m.tier == preferred_tier && m.is_available)
-            .or_else(|| models.iter().find(|m| m.tier == ModelTier::Balanced && m.is_available))
+            .or_else(|| {
+                models
+                    .iter()
+                    .find(|m| m.tier == ModelTier::Balanced && m.is_available)
+            })
             .or_else(|| models.first());
 
         let model = match candidate {

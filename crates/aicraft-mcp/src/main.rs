@@ -52,18 +52,27 @@ fn main() {
     match cli.command {
         Some(Commands::Status) => {
             let status = AICraftStatus::default();
-            println!("{}", serde_json::to_string_pretty(&status).unwrap_or_default());
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&status).unwrap_or_default()
+            );
         }
         Some(Commands::Models) => {
             let models = ModelRouter::list_models();
-            println!("{}", serde_json::to_string_pretty(&models).unwrap_or_default());
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&models).unwrap_or_default()
+            );
         }
         Some(Commands::Telemetry) => {
             let mut accountant = TokenAccountant::new();
             accountant.record("qwen2.5-coder:14b", "ollama", 840, 160, 120, 0.0);
             accountant.record("claude-3-7-sonnet", "anthropic", 2400, 480, 850, 0.014);
             let snap = accountant.snapshot();
-            println!("{}", serde_json::to_string_pretty(&snap).unwrap_or_default());
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&snap).unwrap_or_default()
+            );
         }
         Some(Commands::Route { prompt, tier }) => {
             let model_tier = match tier.to_lowercase().as_str() {
@@ -77,19 +86,23 @@ fn main() {
         Some(Commands::Eval) => {
             let prompts = PromptDepot::standard_prompts();
             if let Some(first) = prompts.first() {
-                let fixtures = vec![
-                    EvalFixture {
-                        id: "zero-panic-test".to_string(),
-                        input_vars: vec![("CODE".to_string(), "fn test() {}".to_string())],
-                        required_keywords: vec!["zero-panic".to_string(), "clippy".to_string()],
-                    },
-                ];
+                let fixtures = vec![EvalFixture {
+                    id: "zero-panic-test".to_string(),
+                    input_vars: vec![("CODE".to_string(), "fn test() {}".to_string())],
+                    required_keywords: vec!["zero-panic".to_string(), "clippy".to_string()],
+                }];
                 let report = PromptDepot::run_evals(first, &fixtures);
-                println!("{}", serde_json::to_string_pretty(&report).unwrap_or_default());
+                println!(
+                    "{}",
+                    serde_json::to_string_pretty(&report).unwrap_or_default()
+                );
             }
         }
         None => {
-            eprintln!("AICraft MCP CLI v{}. Use --mcp for stdio server or --help.", APP_VERSION);
+            eprintln!(
+                "AICraft MCP CLI v{}. Use --mcp for stdio server or --help.",
+                APP_VERSION
+            );
         }
     }
 }
@@ -214,7 +227,14 @@ fn run_mcp_server() {
                         };
 
                         let res = ModelRouter::route(tier, prompt, sys);
-                        accountant.record(&res.model_used, &res.provider, res.prompt_tokens, res.completion_tokens, res.latency_ms, res.cost_usd);
+                        accountant.record(
+                            &res.model_used,
+                            &res.provider,
+                            res.prompt_tokens,
+                            res.completion_tokens,
+                            res.latency_ms,
+                            res.cost_usd,
+                        );
                         json!(res)
                     }
                     "aicraft_get_telemetry" => {
@@ -227,15 +247,16 @@ fn run_mcp_server() {
                     }
                     "aicraft_eval_prompt" => {
                         let prompts = PromptDepot::standard_prompts();
-                        let pid = args.get("prompt_id").and_then(|p| p.as_str()).unwrap_or("code-refactor");
+                        let pid = args
+                            .get("prompt_id")
+                            .and_then(|p| p.as_str())
+                            .unwrap_or("code-refactor");
                         let target = prompts.iter().find(|p| p.id == pid).unwrap_or(&prompts[0]);
-                        let fixtures = vec![
-                            EvalFixture {
-                                id: "standard-eval".to_string(),
-                                input_vars: vec![],
-                                required_keywords: vec!["zero-panic".to_string()],
-                            }
-                        ];
+                        let fixtures = vec![EvalFixture {
+                            id: "standard-eval".to_string(),
+                            input_vars: vec![],
+                            required_keywords: vec!["zero-panic".to_string()],
+                        }];
                         let rep = PromptDepot::run_evals(target, &fixtures);
                         json!(rep)
                     }

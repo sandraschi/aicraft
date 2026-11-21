@@ -98,8 +98,15 @@ impl eframe::App for AICraftApp {
                 }
                 ui.separator();
 
-                ui.label(format!("Session Spend: ${:.4}", self.telemetry_snapshot.total_cost_usd));
-                ui.label(format!("Tokens: {}", self.telemetry_snapshot.total_prompt_tokens + self.telemetry_snapshot.total_completion_tokens));
+                ui.label(format!(
+                    "Session Spend: ${:.4}",
+                    self.telemetry_snapshot.total_cost_usd
+                ));
+                ui.label(format!(
+                    "Tokens: {}",
+                    self.telemetry_snapshot.total_prompt_tokens
+                        + self.telemetry_snapshot.total_completion_tokens
+                ));
                 ui.separator();
 
                 if ui.button("Refresh Router").clicked() {
@@ -147,9 +154,21 @@ impl eframe::App for AICraftApp {
         egui::CentralPanel::default().show(ui, |ui| {
             ui.horizontal(|ui| {
                 ui.selectable_value(&mut self.active_tab, ActiveTab::Arena, "Model Arena");
-                ui.selectable_value(&mut self.active_tab, ActiveTab::PromptDepot, "Prompt Depot & Evals");
-                ui.selectable_value(&mut self.active_tab, ActiveTab::Telemetry, "Token Telemetry");
-                ui.selectable_value(&mut self.active_tab, ActiveTab::Swarm, "Agent Swarm Monitor");
+                ui.selectable_value(
+                    &mut self.active_tab,
+                    ActiveTab::PromptDepot,
+                    "Prompt Depot & Evals",
+                );
+                ui.selectable_value(
+                    &mut self.active_tab,
+                    ActiveTab::Telemetry,
+                    "Token Telemetry",
+                );
+                ui.selectable_value(
+                    &mut self.active_tab,
+                    ActiveTab::Swarm,
+                    "Agent Swarm Monitor",
+                );
             });
             ui.separator();
 
@@ -159,8 +178,16 @@ impl eframe::App for AICraftApp {
                     ui.horizontal(|ui| {
                         ui.label("Routing Tier:");
                         ui.radio_value(&mut self.selected_tier, ModelTier::Local, "Local (Ollama)");
-                        ui.radio_value(&mut self.selected_tier, ModelTier::Balanced, "Balanced (Flash/Haiku)");
-                        ui.radio_value(&mut self.selected_tier, ModelTier::Frontier, "Frontier (Sonnet/Pro)");
+                        ui.radio_value(
+                            &mut self.selected_tier,
+                            ModelTier::Balanced,
+                            "Balanced (Flash/Haiku)",
+                        );
+                        ui.radio_value(
+                            &mut self.selected_tier,
+                            ModelTier::Frontier,
+                            "Frontier (Sonnet/Pro)",
+                        );
                     });
 
                     ui.label("Prompt Input:");
@@ -177,7 +204,8 @@ impl eframe::App for AICraftApp {
                             res.cost_usd,
                         );
                         self.telemetry_snapshot = self.accountant.snapshot();
-                        self.status_message = format!("Dispatched via {} in {}ms", res.model_used, res.latency_ms);
+                        self.status_message =
+                            format!("Dispatched via {} in {}ms", res.model_used, res.latency_ms);
                         self.completion_result = Some(res);
                     }
 
@@ -199,7 +227,11 @@ impl eframe::App for AICraftApp {
                     ui.heading("Versioned Prompt Depot & Evals");
                     ui.horizontal(|ui| {
                         for p in &self.prompts {
-                            let is_sel = self.selected_prompt.as_ref().map(|x| x.id == p.id).unwrap_or(false);
+                            let is_sel = self
+                                .selected_prompt
+                                .as_ref()
+                                .map(|x| x.id == p.id)
+                                .unwrap_or(false);
                             if ui.selectable_label(is_sel, &p.name).clicked() {
                                 self.selected_prompt = Some(p.clone());
                             }
@@ -215,15 +247,17 @@ impl eframe::App for AICraftApp {
                         ui.code(&p.user_template);
 
                         if ui.button("Run Evals Suite").clicked() {
-                            let fixtures = vec![
-                                aicraft_core::prompts::EvalFixture {
-                                    id: "regression-fixture-01".to_string(),
-                                    input_vars: vec![],
-                                    required_keywords: vec!["zero-panic".to_string(), "clippy".to_string()],
-                                },
-                            ];
+                            let fixtures = vec![aicraft_core::prompts::EvalFixture {
+                                id: "regression-fixture-01".to_string(),
+                                input_vars: vec![],
+                                required_keywords: vec![
+                                    "zero-panic".to_string(),
+                                    "clippy".to_string(),
+                                ],
+                            }];
                             let report = PromptDepot::run_evals(p, &fixtures);
-                            self.status_message = format!("Eval pass rate: {:.1}%", report.success_rate);
+                            self.status_message =
+                                format!("Eval pass rate: {:.1}%", report.success_rate);
                             self.eval_report = Some(report);
                         }
 
@@ -234,9 +268,15 @@ impl eframe::App for AICraftApp {
                                 ui.horizontal(|ui| {
                                     ui.strong(&r.fixture_id);
                                     if r.passed {
-                                        ui.colored_label(egui::Color32::from_rgb(50, 200, 50), "PASSED");
+                                        ui.colored_label(
+                                            egui::Color32::from_rgb(50, 200, 50),
+                                            "PASSED",
+                                        );
                                     } else {
-                                        ui.colored_label(egui::Color32::from_rgb(220, 50, 50), "FAILED");
+                                        ui.colored_label(
+                                            egui::Color32::from_rgb(220, 50, 50),
+                                            "FAILED",
+                                        );
                                     }
                                     ui.label(&r.notes);
                                 });
@@ -246,13 +286,34 @@ impl eframe::App for AICraftApp {
                 }
                 ActiveTab::Telemetry => {
                     ui.heading("Token Economics & Latency Radar");
-                    ui.label(format!("Total Requests: {}", self.telemetry_snapshot.total_requests));
-                    ui.label(format!("Prompt Tokens: {}", self.telemetry_snapshot.total_prompt_tokens));
-                    ui.label(format!("Completion Tokens: {}", self.telemetry_snapshot.total_completion_tokens));
-                    ui.label(format!("Cumulative Spend: ${:.4}", self.telemetry_snapshot.total_cost_usd));
-                    ui.label(format!("Average Latency: {:.1} ms", self.telemetry_snapshot.avg_latency_ms));
-                    ui.label(format!("Average Speed: {:.1} tokens/sec", self.telemetry_snapshot.avg_tokens_per_sec));
-                    ui.label(format!("Cache Hit Ratio: {:.1}%", self.telemetry_snapshot.cache_hit_ratio * 100.0));
+                    ui.label(format!(
+                        "Total Requests: {}",
+                        self.telemetry_snapshot.total_requests
+                    ));
+                    ui.label(format!(
+                        "Prompt Tokens: {}",
+                        self.telemetry_snapshot.total_prompt_tokens
+                    ));
+                    ui.label(format!(
+                        "Completion Tokens: {}",
+                        self.telemetry_snapshot.total_completion_tokens
+                    ));
+                    ui.label(format!(
+                        "Cumulative Spend: ${:.4}",
+                        self.telemetry_snapshot.total_cost_usd
+                    ));
+                    ui.label(format!(
+                        "Average Latency: {:.1} ms",
+                        self.telemetry_snapshot.avg_latency_ms
+                    ));
+                    ui.label(format!(
+                        "Average Speed: {:.1} tokens/sec",
+                        self.telemetry_snapshot.avg_tokens_per_sec
+                    ));
+                    ui.label(format!(
+                        "Cache Hit Ratio: {:.1}%",
+                        self.telemetry_snapshot.cache_hit_ratio * 100.0
+                    ));
                 }
                 ActiveTab::Swarm => {
                     ui.heading("Agent Swarm Hierarchy & Task Monitor");
@@ -289,7 +350,10 @@ fn main() -> eframe::Result<()> {
         viewport: egui::ViewportBuilder::default()
             .with_inner_size([1180.0, 760.0])
             .with_min_inner_size([800.0, 500.0])
-            .with_title(format!("AICraft — Sovereign AI Ops & Model Routing Studio (v{})", APP_VERSION)),
+            .with_title(format!(
+                "AICraft — Sovereign AI Ops & Model Routing Studio (v{})",
+                APP_VERSION
+            )),
         ..Default::default()
     };
 

@@ -77,8 +77,14 @@ impl PromptDepot {
             let mut missing = Vec::new();
 
             for kw in &fixture.required_keywords {
-                if !prompt.system_instruction.to_lowercase().contains(&kw.to_lowercase())
-                    && !prompt.user_template.to_lowercase().contains(&kw.to_lowercase())
+                if !prompt
+                    .system_instruction
+                    .to_lowercase()
+                    .contains(&kw.to_lowercase())
+                    && !prompt
+                        .user_template
+                        .to_lowercase()
+                        .contains(&kw.to_lowercase())
                 {
                     passed = false;
                     missing.push(kw.clone());
